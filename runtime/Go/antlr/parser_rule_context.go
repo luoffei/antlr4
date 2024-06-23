@@ -7,6 +7,7 @@ package antlr
 import (
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 type ParserRuleContext interface {
@@ -87,10 +88,12 @@ func (prc *BaseParserRuleContext) GetText() string {
 	for _, child := range prc.children {
 		childText := child.(ParseTree).GetText()
 		if childText != "" {
-			if s != "" {
+			if s != "" &&
+				!strings.HasSuffix(childText, "(") && childText != ")" && !strings.HasSuffix(s, "(") &&
+				childText != "." && !strings.HasSuffix(s, ".") {
 				s += " "
 			}
-			s += child.(ParseTree).GetText()
+			s += childText
 		}
 	}
 
