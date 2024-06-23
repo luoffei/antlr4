@@ -28,6 +28,7 @@ type ParserRuleContext interface {
 
 	AddChild(child RuleContext) RuleContext
 	RemoveLastChild()
+	RemoveChild(i int)
 }
 
 type BaseParserRuleContext struct {
@@ -84,7 +85,13 @@ func (prc *BaseParserRuleContext) GetText() string {
 
 	var s string
 	for _, child := range prc.children {
-		s += child.(ParseTree).GetText()
+		childText := child.(ParseTree).GetText()
+		if childText != "" {
+			if s != "" {
+				s += " "
+			}
+			s += child.(ParseTree).GetText()
+		}
 	}
 
 	return s
@@ -127,6 +134,22 @@ func (prc *BaseParserRuleContext) AddChild(child RuleContext) RuleContext {
 func (prc *BaseParserRuleContext) RemoveLastChild() {
 	if prc.children != nil && len(prc.children) > 0 {
 		prc.children = prc.children[0 : len(prc.children)-1]
+	}
+}
+
+func (prc *BaseParserRuleContext) RemoveChild(i int) {
+	if i >= len(prc.children) {
+		return
+	}
+
+	if prc.children != nil && len(prc.children) > 0 {
+		if i == 0 {
+			prc.children = prc.children[1:]
+		} else if i == len(prc.children)-1 {
+			prc.children = prc.children[0 : len(prc.children)-1]
+		} else {
+			prc.children = append(prc.children[:i], prc.children[i+1:]...)
+		}
 	}
 }
 
